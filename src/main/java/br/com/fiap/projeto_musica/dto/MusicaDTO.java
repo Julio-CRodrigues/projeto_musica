@@ -2,10 +2,12 @@ package br.com.fiap.projeto_musica.dto;
 
 import java.time.LocalDate;
 
+import org.springframework.hateoas.RepresentationModel;
+
 import br.com.fiap.projeto_musica.model.Artista;
 import br.com.fiap.projeto_musica.model.Musica;
 
-public class MusicaDTO {
+public class MusicaDTO extends RepresentationModel<MusicaDTO> {
 
 	private Long id;
 	private Artista artista;

@@ -1,5 +1,6 @@
 package br.com.fiap.projeto_musica.control;
 
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -26,6 +27,11 @@ import br.com.fiap.projeto_musica.projection.MusicaProjection;
 import br.com.fiap.projeto_musica.repository.MusicaRepository;
 import br.com.fiap.projeto_musica.service.MusicaCachingService;
 import br.com.fiap.projeto_musica.service.MusicaService;
+
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
+ 
+ 
 
 @RestController
 @RequestMapping(value = "/musicas")
@@ -55,6 +61,26 @@ public class MusicaController {
 		
 		Page<MusicaDTO> musicas_paginadas = servM.paginar(req);
 		
+		musicas_paginadas.forEach(m -> {
+			
+			m.add(linkTo(methodOn(MusicaController.class).
+					retornaMusicaPorID(m.getId())).withRel("Quer saber mais detalhes sobre a musica de nome " + m.getTitulo() + "? \n"
+							+ "clique nesse link: "));
+					
+					
+					m.add(linkTo(methodOn(MusicaController.class)
+					.retornaMusicasPaginadas(null, null))
+					.withRel("Quer retornar músicas paginadas?"));
+					
+					
+					m.add(linkTo(methodOn(MusicaController.class).inserirMusica(null))
+							.withRel("Quer inserir uma nova musica?"));
+					
+				    m.add(linkTo(methodOn(MusicaController.class)
+					.atualizarMusica(m.getId(), null))
+					.withRel("quer atualizar a musica de nome: " + m.getTitulo() + "?"));
+		});
+		
 		return ResponseEntity.ok(musicas_paginadas);
 		
 	}
@@ -67,7 +93,29 @@ public class MusicaController {
 	
 	@GetMapping(value = "/todas_cacheable")
 	public List<Musica> retornaTodasMusicasCacheable(){
-		return cacheM.findAll();
+		
+		List<Musica> todas_musicas = cacheM.findAll();
+		
+		for(Musica m : todas_musicas) {
+			m.add(linkTo(methodOn(MusicaController.class).
+					retornaMusicaPorID(m.getId())).withRel("Quer saber mais detalhes sobre a musica de nome " + m.getTitulo() + "? \n"
+							+ "clique nesse link: "));
+					
+					
+					m.add(linkTo(methodOn(MusicaController.class)
+					.retornaMusicasPaginadas(null, null))
+					.withRel("Quer retornar músicas paginadas?"));
+					
+					
+					m.add(linkTo(methodOn(MusicaController.class).inserirMusica(null))
+							.withRel("Quer inserir uma nova musica?"));
+					
+				    m.add(linkTo(methodOn(MusicaController.class)
+					.atualizarMusica(m.getId(), null))
+					.withRel("quer atualizar a musica de nome: " + m.getTitulo() + "?"));
+		}
+		
+		return todas_musicas;
 	}
 	
 	@GetMapping(value = "/{id}")
@@ -111,6 +159,18 @@ public class MusicaController {
 	public Musica inserirMusica(@RequestBody Musica musica) {
 		repM.save(musica);
 		cacheM.limparCache();
+		
+		musica.add(linkTo(methodOn(MusicaController.class).
+				retornaMusicaPorID(musica.getId())).withRel("Ver detalhes ?"));
+		
+		
+		musica.add((linkTo(methodOn(MusicaController.class)
+				.atualizarMusica(musica.getId(), null))).withRel("Quer atualizar ?"));
+		
+		
+		
+		musica.add(linkTo(methodOn(this.getClass()).retornaTodasMusicasCacheable())
+				.withRel("ver todas"));
 		return musica;
 	}
 	

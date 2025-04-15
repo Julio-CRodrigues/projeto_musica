@@ -2,6 +2,8 @@ package br.com.fiap.projeto_musica.model;
 
 import java.time.LocalDate;
 
+import org.springframework.hateoas.RepresentationModel;
+
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -19,7 +21,8 @@ import lombok.Data;
 @Data
 @Entity
 @Table(name = "musica")
-public class Musica {
+public class Musica extends RepresentationModel<Musica> {
+	
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)

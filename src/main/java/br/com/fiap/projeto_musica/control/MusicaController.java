@@ -1,6 +1,8 @@
 package br.com.fiap.projeto_musica.control;
 
-import java.lang.reflect.Method;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -27,9 +29,7 @@ import br.com.fiap.projeto_musica.projection.MusicaProjection;
 import br.com.fiap.projeto_musica.repository.MusicaRepository;
 import br.com.fiap.projeto_musica.service.MusicaCachingService;
 import br.com.fiap.projeto_musica.service.MusicaService;
-
-import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
-import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
+import io.swagger.v3.oas.annotations.Operation;
  
  
 
@@ -46,12 +46,17 @@ public class MusicaController {
 	@Autowired
 	private MusicaCachingService cacheM;
 	
+	@Operation(description = "Esta operação retorna para o solicitante projeções de músicas de longa da duração",
+    		summary = "Retornar músicas de longa duração", tags = "Retorno de Informação")
 	@GetMapping(value = "/longas")
 	public List<MusicaProjection> retornaMusicasLongaDuracao
 	(@RequestParam(value = "duracao") Double duracao){
 		return repM.retornaMusicasLongaDuracao(duracao);
 	}
 	
+	  @Operation(description = "Esta operação retorna para o solicitante listas de "
+	    		+ "páginas de MúsicaDTO de maneira paginada",
+	    		summary = "Retornar páginas de MusicaDTO", tags = "Retorno de Informação")
 	@GetMapping(value = "/paginadas")
 	public ResponseEntity<Page<MusicaDTO>> retornaMusicasPaginadas(
 	@RequestParam(value ="page", defaultValue = "0") Integer page, 
@@ -155,6 +160,8 @@ public class MusicaController {
 		return cacheM.retornaMusicasInternacionais(true);
 	}
 	
+	@Operation(description = "Esta operação possibilita a inserção de um novo item na tabela de músicas",
+    		summary = "Inserir uma nova música", tags = "Inserção de Informação")
 	@PostMapping(value = "/inserir")
 	public Musica inserirMusica(@RequestBody Musica musica) {
 		repM.save(musica);
@@ -174,6 +181,9 @@ public class MusicaController {
 		return musica;
 	}
 	
+	
+	@Operation(description = "Esta operação possibilita a atualização de um item na tabela de músicas",
+    		summary = "Atualizar uma nova música", tags = "Atualização de Informação")
 	@PutMapping(value = "/atualizar/{id}")
 	public Musica atualizarMusica(@PathVariable Long id, @RequestBody Musica musica) {
 		
@@ -201,6 +211,8 @@ public class MusicaController {
 		
 	}
 	
+	@Operation(description = "Esta operação possibilita a remoção de um item na tabela de músicas",
+    		summary = "Remover uma música", tags = "Remoção de Informação")
 	@DeleteMapping(value = "/excluir/{id}")
 	public Musica excluirMusica(@PathVariable Long id) {
 		

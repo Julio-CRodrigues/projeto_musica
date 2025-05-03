@@ -7,8 +7,35 @@ Sistema desenvolvido durante o curso de **Análise e Desenvolvimento de Sistemas
 
 ## 🚀 Sobre o Projeto
 
-Esta aplicação é uma **API RESTful** que permite realizar o cadastro, listagem, atualização, exclusão e consulta de músicas, com filtros por duração e internacionalidade.  
-Além disso, utiliza **cache** para otimizar o desempenho de buscas repetidas e oferece uma documentação interativa via **Swagger UI**.
+Esta aplicação é uma **API RESTful** que permite realizar o cadastro, listagem, atualização, exclusão e consulta de músicas, com filtros por duração e internacionalidade.
+
+Além disso, o sistema:
+
+- Utiliza **cache com Spring** para otimização de performance
+- Protege rotas com **Spring Security**, exigindo autenticação básica
+- Está documentado com **Swagger (OpenAPI)** para facilitar o uso dos endpoints
+- Apresenta boas práticas de organização em camadas (controller, service, repository)
+
+---
+
+## 🔐 Autenticação
+
+Esta API utiliza autenticação HTTP básica com usuário padrão do Spring Security.
+
+- **Usuário:** `user`
+- **Senha:** gerada automaticamente no console ao iniciar a aplicação
+
+### 📌 Onde encontrar a senha?
+
+Ao rodar a aplicação, procure no terminal por algo como:
+
+```
+Using generated security password: e1x2y3z4...
+```
+
+> Copie essa senha e use no Swagger UI quando solicitado.
+>
+> ⚠️ Endpoints como `/musicas/todas` e `/musicas/todas_cacheable` estão liberados sem login.
 
 ---
 
@@ -16,6 +43,7 @@ Além disso, utiliza **cache** para otimizar o desempenho de buscas repetidas e 
 
 ![Java](https://img.shields.io/badge/Java-17-007396?style=for-the-badge&logo=java&logoColor=white)
 ![Spring Boot](https://img.shields.io/badge/Spring_Boot-2.7.0-6DB33F?style=for-the-badge&logo=spring-boot&logoColor=white)
+![Spring Security](https://img.shields.io/badge/Spring_Security-6DB33F?style=for-the-badge&logo=spring-security&logoColor=white)
 ![Spring Web](https://img.shields.io/badge/Spring_Web-6DB33F?style=for-the-badge&logo=spring&logoColor=white)
 ![JPA](https://img.shields.io/badge/JPA-Hibernate-59666C?style=for-the-badge&logo=hibernate&logoColor=white)
 ![H2 Database](https://img.shields.io/badge/H2-Database-0066A1?style=for-the-badge&logo=h2&logoColor=white)
@@ -31,6 +59,7 @@ Além disso, utiliza **cache** para otimizar o desempenho de buscas repetidas e 
 - 🔍 Consulta por ID e por substring  
 - 🌍 Filtro de músicas internacionais  
 - ⏱️ Filtro de músicas por duração  
+- 🔐 Segurança com autenticação básica (Spring Security)  
 - ⚡ Otimização com cache  
 - 🔗 Links HATEOAS para facilitar navegação na API  
 - 🧾 Documentação interativa via Swagger UI  
@@ -50,6 +79,8 @@ projeto_musica/
 ├── service/                # Camadas de serviço e cache
 │   └── MusicaService.java
 │   └── MusicaCachingService.java
+├── security/               # Configuração de segurança
+│   └── SegurancaConfig.java
 ├── swagger/                # Configuração Swagger
 │   └── swaggerConfiguration.java
 └── ProjetoMusicaApplication.java  # Classe principal
@@ -85,11 +116,11 @@ Após executar a aplicação, você pode interagir com a API das seguintes forma
    http://localhost:8080/swagger-ui/index.html
    ```
 
-2. Navegue pela lista de endpoints divididos por grupo (inserção, consulta, atualização, remoção).
+2. Autentique-se com as credenciais indicadas (user / "gerada automaticamente no console").
 
-3. Clique em um endpoint → **"Try it out"** → Preencha os parâmetros → **Execute**.
+3. Navegue pela lista de endpoints divididos por grupo (inserção, consulta, atualização, remoção).
 
-4. Visualize a resposta diretamente na interface.
+4. Clique em um endpoint → **"Try it out"** → Preencha os parâmetros → **Execute**.
 
 ---
 
@@ -109,8 +140,6 @@ Após executar a aplicação, você pode interagir com a API das seguintes forma
 ---
 
 ### 📤 Exemplo de Requisição (JSON)
-
-Para inserir ou atualizar músicas:
 
 ```json
 {

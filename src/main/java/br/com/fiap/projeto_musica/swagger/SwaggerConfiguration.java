@@ -8,7 +8,7 @@ import io.swagger.v3.oas.models.info.Info;
 import io.swagger.v3.oas.models.info.License;
 
 @Configuration
-public class swaggerConfiguration {
+public class SwaggerConfiguration {
 	
 	@Bean
 	OpenAPI configurarSwagger() {
@@ -23,8 +23,8 @@ public class swaggerConfiguration {
 											.version("v1.0.0")
 											.termsOfService("Termos de Serviço")
 											.license(new License().url("www.fiap.com.br")
-																  .name("Projeto de Gestão Muscial - FIAP"
-																		  + "- Planos de Adesão")));
+																  .name("Projeto de Gestão Musical - FIAP "
+																  		+ "- Planos de Adesão")));
 	}
 
 }

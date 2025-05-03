@@ -21,11 +21,11 @@ public interface MusicaRepository extends JpaRepository<Musica, Long> {
 	public List<MusicaProjection> retornaMusicasLongaDuracao(Double duracao);
 	
 	
-	@Query(nativeQuery = true,
+	@Query(nativeQuery = true, 
 			value = "select mus.titulo, mus.duracao, art.nome_artista from musica mus inner "
 					+ "join artista art on (mus.id_artista = art.id) "
 				  + "where (mus.titulo ilike concat('%',:valor,'%') "
-				  + "or upper(art.nome_artista) like upper(concat('%',:valor,'%')))")
+				  + "or lower(art.nome_artista) like lower(concat('%',:valor,'%')))")
 	public List<MusicaProjection> retornaMusicasPorSubstring(String valor);
 
 }

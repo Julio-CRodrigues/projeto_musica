@@ -15,36 +15,34 @@ import br.com.fiap.projeto_musica.repository.MusicaRepository;
 
 @Service
 public class MusicaCachingService {
-	
+
 	@Autowired
 	private MusicaRepository repM;
 	
-	@Cacheable(value = "retornarMusicasInternacionais", key="#valor")
-	public List<Musica> retornaMusicasInternacionais(Boolean valor){
+	@Cacheable(value = "retornaMusicasInternacionais", key="#valor")
+	public List<Musica> retornaMusicasInternacionais(boolean valor){
 		return repM.retornaMusicasInternacionais(valor);
 	}
-	
+
 	@Cacheable(value = "buscaTodasMusicas")
-	public List<Musica> findAll(){
+	public List<Musica> findAll() {
 		return repM.findAll();
 	}
-	
-	@Cacheable(value = "buscaMusicaPorID", key ="#id")
-	public Optional<Musica> findById(Long id){
-		return repM.findById(id);
+
+	@Cacheable(value = "buscaMusicaPorID", key = "#id_musica")
+	public Optional<Musica> findById(Long id_musica) {
+		return repM.findById(id_musica);
 	}
-	
+
 	@Cacheable(value = "buscaPaginasMusica", key = "#req")
-	public Page<Musica> findAll(PageRequest req){
+	public Page<Musica> findAll(PageRequest req) {
 		return repM.findAll(req);
 	}
-	
-	@CacheEvict(value = {"retornaMusicasInternacionais", "buscaTodasMusicas",
+
+	@CacheEvict(value = {"retornaMusicasInternacionais", "buscaTodasMusicas", 
 			"buscaMusicaPorID", "buscaPaginasMusica"}, allEntries = true)
 	public void limparCache() {
 		System.out.println("Limpando o cache!");
 	}
-	
-	
 
 }

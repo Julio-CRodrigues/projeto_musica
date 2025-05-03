@@ -1,11 +1,11 @@
 package br.com.fiap.projeto_musica.control;
 
-import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
-import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -22,20 +22,21 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
-
+import br.com.fiap.projeto_musica.ProjetoMusicaApplication;
 import br.com.fiap.projeto_musica.dto.MusicaDTO;
 import br.com.fiap.projeto_musica.model.Musica;
 import br.com.fiap.projeto_musica.projection.MusicaProjection;
 import br.com.fiap.projeto_musica.repository.MusicaRepository;
 import br.com.fiap.projeto_musica.service.MusicaCachingService;
 import br.com.fiap.projeto_musica.service.MusicaService;
+import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.Operation;
- 
- 
 
 @RestController
 @RequestMapping(value = "/musicas")
 public class MusicaController {
+
+    private final ProjetoMusicaApplication projetoMusicaApplication;
 
 	@Autowired
 	private MusicaRepository repM;
@@ -45,8 +46,13 @@ public class MusicaController {
 	
 	@Autowired
 	private MusicaCachingService cacheM;
+
+    MusicaController(ProjetoMusicaApplication projetoMusicaApplication) {
+        this.projetoMusicaApplication = projetoMusicaApplication;
+    }
 	
-	@Operation(description = "Esta operação retorna para o solicitante projeções de músicas de longa da duração",
+    @Operation(description = "Esta operação retorna para o solicitante projeções de músicas "
+    		+ "de longa da duração",
     		summary = "Retornar músicas de longa duração", tags = "Retorno de Informação")
 	@GetMapping(value = "/longas")
 	public List<MusicaProjection> retornaMusicasLongaDuracao
@@ -54,9 +60,9 @@ public class MusicaController {
 		return repM.retornaMusicasLongaDuracao(duracao);
 	}
 	
-	  @Operation(description = "Esta operação retorna para o solicitante listas de "
-	    		+ "páginas de MúsicaDTO de maneira paginada",
-	    		summary = "Retornar páginas de MusicaDTO", tags = "Retorno de Informação")
+    @Operation(description = "Esta operação retorna para o solicitante listas de "
+    		+ "páginas de MúsicaDTO de maneira paginada",
+    		summary = "Retornar páginas de MusicaDTO", tags = "Retorno de Informação")
 	@GetMapping(value = "/paginadas")
 	public ResponseEntity<Page<MusicaDTO>> retornaMusicasPaginadas(
 	@RequestParam(value ="page", defaultValue = "0") Integer page, 
@@ -67,60 +73,60 @@ public class MusicaController {
 		Page<MusicaDTO> musicas_paginadas = servM.paginar(req);
 		
 		musicas_paginadas.forEach(m -> {
-			
-			m.add(linkTo(methodOn(MusicaController.class).
-					retornaMusicaPorID(m.getId())).withRel("Quer saber mais detalhes sobre a musica de nome " + m.getTitulo() + "? \n"
-							+ "clique nesse link: "));
-					
-					
-					m.add(linkTo(methodOn(MusicaController.class)
-					.retornaMusicasPaginadas(null, null))
+
+			m.add(linkTo(methodOn(MusicaController.class).retornaMusicaPorID(m.getId()))
+					.withRel("Quer saber mais detalhes sobre a música " + m.getTitulo() + "?"));
+
+			m.add(linkTo(methodOn(MusicaController.class).retornaMusicasPaginadas(null, null))
 					.withRel("Quer retornar músicas paginadas?"));
-					
-					
-					m.add(linkTo(methodOn(MusicaController.class).inserirMusica(null))
-							.withRel("Quer inserir uma nova musica?"));
-					
-				    m.add(linkTo(methodOn(MusicaController.class)
-					.atualizarMusica(m.getId(), null))
-					.withRel("quer atualizar a musica de nome: " + m.getTitulo() + "?"));
+
+			m.add(linkTo(methodOn(MusicaController.class).inserirMusica(null))
+					.withRel("Quer inserir uma nova música?"));
+
+			m.add(linkTo(methodOn(MusicaController.class).atualizarMusica(m.getId(), null))
+					.withRel("Quer atualizar a música " + m.getTitulo() + "?"));
+
 		});
 		
 		return ResponseEntity.ok(musicas_paginadas);
 		
 	}
 	
-
+    @Hidden
+    @Operation(description = "Esta operação retorna todas as músicas existentes",
+    		summary = "Retornar todas as músicas", tags = "Retorno de Informação")
 	@GetMapping(value = "/todas")
 	public List<Musica> retornaTodasMusicas() {
 		return repM.findAll();
 	}
 	
+    @Operation(description = "Esta operação retorna todas as músicas existentes "
+    		+ "utilizando a estratégia de caching",
+    		summary = "Retornar todas as músicas utilizando caching", tags = "Retorno de Informação")
 	@GetMapping(value = "/todas_cacheable")
 	public List<Musica> retornaTodasMusicasCacheable(){
 		
-		List<Musica> todas_musicas = cacheM.findAll();
+		List<Musica> todas_musicas =  cacheM.findAll();
 		
 		for(Musica m : todas_musicas) {
-			m.add(linkTo(methodOn(MusicaController.class).
-					retornaMusicaPorID(m.getId())).withRel("Quer saber mais detalhes sobre a musica de nome " + m.getTitulo() + "? \n"
-							+ "clique nesse link: "));
-					
-					
-					m.add(linkTo(methodOn(MusicaController.class)
+			m.add(linkTo(methodOn(MusicaController.class)
+			.retornaMusicaPorID(m.getId()))
+			.withRel("Quer saber mais detalhes sobre a música " + m.getTitulo() + "?"));
+			
+			m.add(linkTo(methodOn(MusicaController.class)
 					.retornaMusicasPaginadas(null, null))
 					.withRel("Quer retornar músicas paginadas?"));
-					
-					
-					m.add(linkTo(methodOn(MusicaController.class).inserirMusica(null))
-							.withRel("Quer inserir uma nova musica?"));
-					
-				    m.add(linkTo(methodOn(MusicaController.class)
+			
+			m.add(linkTo(methodOn(MusicaController.class)
+					.inserirMusica(null)).withRel("Quer inserir uma nova música?"));
+			
+			m.add(linkTo(methodOn(MusicaController.class)
 					.atualizarMusica(m.getId(), null))
-					.withRel("quer atualizar a musica de nome: " + m.getTitulo() + "?"));
+					.withRel("Quer atualizar a música " + m.getTitulo() +"?"));
 		}
 		
 		return todas_musicas;
+		
 	}
 	
 	@GetMapping(value = "/{id}")
@@ -140,7 +146,7 @@ public class MusicaController {
 	@GetMapping(value = "/internacionais_nao_otimizadas")
 	public List<Musica> retornaMusicasInternacionais(){
 		
-		List<Musica> todas = repM.findAll();
+		List<Musica> todas = cacheM.findAll();
 		List<Musica> internacionais = new ArrayList<Musica>();
 		
 		for(Musica musica : todas) {
@@ -160,34 +166,30 @@ public class MusicaController {
 		return cacheM.retornaMusicasInternacionais(true);
 	}
 	
-	@Operation(description = "Esta operação possibilita a inserção de um novo item na tabela de músicas",
+    @Operation(description = "Esta operação possibilita a inserção de um novo item na tabela de músicas",
     		summary = "Inserir uma nova música", tags = "Inserção de Informação")
 	@PostMapping(value = "/inserir")
 	public Musica inserirMusica(@RequestBody Musica musica) {
 		repM.save(musica);
 		cacheM.limparCache();
 		
-		musica.add(linkTo(methodOn(MusicaController.class).
-				retornaMusicaPorID(musica.getId())).withRel("Ver detalhes ?"));
-		
-		
-		musica.add((linkTo(methodOn(MusicaController.class)
-				.atualizarMusica(musica.getId(), null))).withRel("Quer atualizar ?"));
-		
-		
-		
+		musica.add(linkTo(methodOn(MusicaController.class)
+				.retornaMusicaPorID(musica.getId())).withRel("Ver detalhes?"));
+		musica.add(linkTo(methodOn(MusicaController.class)
+				.atualizarMusica(musica.getId(), null)).withRel("Quer atualizar?"));
 		musica.add(linkTo(methodOn(this.getClass()).retornaTodasMusicasCacheable())
-				.withRel("ver todas"));
+				.withRel("Ver todas?"));
+		
+		
 		return musica;
 	}
 	
-	
-	@Operation(description = "Esta operação possibilita a atualização de um item na tabela de músicas",
+    @Operation(description = "Esta operação possibilita a atualização de um item na tabela de músicas",
     		summary = "Atualizar uma nova música", tags = "Atualização de Informação")
 	@PutMapping(value = "/atualizar/{id}")
 	public Musica atualizarMusica(@PathVariable Long id, @RequestBody Musica musica) {
 		
-		Optional<Musica> op = repM.findById(id);
+		Optional<Musica> op = cacheM.findById(id);
 		
 		if(op.isPresent()) {
 			
@@ -211,7 +213,7 @@ public class MusicaController {
 		
 	}
 	
-	@Operation(description = "Esta operação possibilita a remoção de um item na tabela de músicas",
+    @Operation(description = "Esta operação possibilita a remoção de um item na tabela de músicas",
     		summary = "Remover uma música", tags = "Remoção de Informação")
 	@DeleteMapping(value = "/excluir/{id}")
 	public Musica excluirMusica(@PathVariable Long id) {
@@ -229,10 +231,10 @@ public class MusicaController {
 		
 	}
 	
-	
 	@GetMapping(value = "/substring")
 	public List<MusicaProjection> retornaMusicaPorSubstring(@RequestParam(value = "parametro") String valor){
 		return repM.retornaMusicasPorSubstring(valor);
 	}
+	
 
 }
